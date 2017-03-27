@@ -1,0 +1,29 @@
+* Mage App
+This is how we want to proceed with the Mage app.
+** Learn React + TypeScript
+Follow these articles to get a handle on things:
+ - https://www.typescriptlang.org/docs/handbook/react-&-webpack.html
+ - https://www.typescriptlang.org/docs/handbook/jsx.html (Important for JSX!)
+ - https://facebook.github.io/react/docs/rendering-elements.html
+
+The one from typescriptlang.org is important because it shows how to set up things. Most of it is boilerplate.
+*** Notes
+We have learned the following important stuff so far:
+ - Use web-mode + tide to edit TSX files. Use typescript-mode for regular TS files.
+ - Typing JSX Elements seems to be stuck with using JSX.Element as the type.
+   - Using things like HTMLLIElement don't work, for example.
+   - It seems that this is just how it is (se the JSX typescript handbook).
+ - A React app should be structured with a single root element (typically called <App />).
+ - You can merge interfaces together in TypeScript by declaring it multiple times (sort of like partial classes in C#).
+ - Using state updates is pretty easy. State is an object literal (defined by TS interface).
+ - When switching between states based on a previous state, use the setState call that accepts a function argument, since state updates might be async.
+ - We should maintain strict separation between client and server code, because different types might be in play. Case in point: setInterval returning NodeJS.Timer in Node, but a number in the browser. Installing the node types breaks the browser behavior.
+   - https://github.com/TypeStrong/atom-typescript/issues/1053
+*** Next steps
+Our next steps are:
+ - Separate out the ways of handling client and server side stuff. In a "unified app," there should be two directories: one for client and one for server. Not entirely sure I'll need React on the server side. Definitely not, if we use the server as a pure API server.
+ - Discover event handling in React.
+** Integrate Material UI for React
+By using this, we can integrate Material UI features, and prototype what an Android app would look like.
+
+Design the UI first, then hook up the backends.
