@@ -34,6 +34,8 @@ To finsh thaumaturge we need to do:
  - [X] Create tsconfig.json
  - [ ] Leverage dts-bundle to generate the types file.
  - [ ] Make some kind of build task to automate the generation of js files and the type declaration.
+ - [ ] Write a simple command line client for it.
+ - [ ] Tests! (should be pretty straightforward...)
  - [ ] Attempt to import it into client!
  - [ ] Move tsconfig.json and webpack.config.js from root to client/ directory. Refactor accordingly.
 ** Create Grimoire Client
