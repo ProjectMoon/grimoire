@@ -27,3 +27,14 @@ Our next steps are:
 By using this, we can integrate Material UI features, and prototype what an Android app would look like.
 
 Design the UI first, then hook up the backends.
+** Finish thaumaturge
+Thaumaturge is to be a separate library that Grimoire depends on (despite being in the same reo).
+
+To finsh thaumaturge we need to do:
+ - [X] Create tsconfig.json
+ - [ ] Leverage dts-bundle to generate the types file.
+ - [ ] Make some kind of build task to automate the generation of js files and the type declaration.
+ - [ ] Attempt to import it into client!
+ - [ ] Move tsconfig.json and webpack.config.js from root to client/ directory. Refactor accordingly.
+** Create Grimoire Client
+Time to react super hard.
