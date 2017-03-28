@@ -135,7 +135,7 @@ export class SpellCaster {
         }
     }
 
-    listPractices(arcanum: Arcanum): ReadonlySet<Practices> {
+    listPractices(arcanum: Arcanum): ReadonlyArray<Practices> {
         let dots = this.arcanaDots.get(arcanum);
 
         if (!dots) {
@@ -153,7 +153,7 @@ export class SpellCaster {
             }
         }
 
-        return Object.freeze(practices);
+        return Object.freeze([...practices]);
     }
 
     getArcanumDots(arcanum: Arcanum): number {
@@ -372,6 +372,13 @@ export class SimpleSpellCasting {
 
     validate(): true | string[] {
         let errors: string[] = [];
+
+        //The dots and practice of the spell must make sense.
+        let casterPractices = this.caster.listPractices(this.spellHighestArcanum);
+
+        if (casterPractices.indexOf(this.spell.practice) === -1) {
+            errors.push('The ${this.spell.practice} practice is not available at ${this.spell.dots} dots');
+        }
 
         //The caster needs all the dots in all the arcana of the spell.
         for (let arcanumComponent of this.spell.arcana) {
