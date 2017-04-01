@@ -4,16 +4,23 @@
   "description": "MtAw 2e spellcasting logic library used by Grimoire.",
   "main": "./dist/lib/index.js",
   "types": "./dist/thaumaturge.d.ts",
-  "files": [ "dist/" ],
+  "files": [
+    "dist/"
+  ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha --opts mocha.opts"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/chai": "^3.4.35",
+    "@types/mocha": "^2.2.40",
+    "@types/node": "^7.0.12",
     "awesome-typescript-loader": "^3.1.2",
+    "mocha": "^3.2.0",
     "source-map-loader": "^0.2.0",
-    "typescript": "^2.2.1"
+    "ts-node": "^3.0.2",
+    "typescript": "^2.2.1",
+    "chai": "^3.5.0"
   }
-
 }

@@ -128,6 +128,10 @@ export class SpellCaster {
     readonly rulingArcana: Array<Arcanum>;
 
     constructor(gnosis: number, arcanaDots?: Map<Arcanum, number>) {
+        if (gnosis < 0) {
+            throw new Error('Gnosis must be at least 0');
+        }
+
         this.gnosis = gnosis;
 
         if (arcanaDots) {
@@ -136,10 +140,10 @@ export class SpellCaster {
     }
 
     listPractices(arcanum: Arcanum): ReadonlyArray<Practices> {
-        let dots = this.arcanaDots.get(arcanum);
+        let dots = this.getArcanumDots(arcanum);
 
-        if (!dots) {
-            throw new Error('Caster does not have ${arcanum}');
+        if (dots == 0) {
+            return [];
         }
 
         let practices = new Set<Practices>();
@@ -178,7 +182,7 @@ export class SpellCaster {
         if (yantras < 2) yantras = 2;
         if (yantras > 6) yantras = 6;
 
-        return 6;
+        return yantras;
     }
 
     get paradoxByGnosis(): number {
