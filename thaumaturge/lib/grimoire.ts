@@ -95,7 +95,7 @@ export enum SituationalRules {
 export interface SituationalFactors {
     situationalRules: Array<SituationalRules>; //Various situational rules that can come into play.
     previousParadoxRolls: number; //How many paradox rolls have occurred for the caster in this scene?
-    woundPenalty: 1 | 2 | 3; //Wound penalties from health boxes being filled.
+    woundPenalty: 0 | 1 | 2 | 3; //Wound penalties from health boxes being filled.
 }
 
 export interface SpellArcanumComponent {
@@ -122,21 +122,53 @@ export interface SpellcastingDefinition {
     situation?: SituationalFactors;
 }
 
+export class SpellCasterBuilder {
+    private gnosis = 0;
+    private arcanaDots = new Map<Arcanum, number>();
+    private rulingArcana = new Set<Arcanum>();
+
+    withRulingArcana(...arcana: Arcanum[]): SpellCasterBuilder {
+        for (const arcanum of arcana) {
+            this.rulingArcana.add(arcanum);
+        }
+
+        return this;
+    }
+
+    withRulingArcanum(arcanum: Arcanum): SpellCasterBuilder {
+        this.rulingArcana.add(arcanum);
+        return this;
+    };
+
+    withArcanum(arcanum: Arcanum, dots: number): SpellCasterBuilder {
+        this.arcanaDots.set(arcanum, dots);
+        return this;
+    }
+
+    withGnosis(gnosis: number): SpellCasterBuilder {
+        this.gnosis = gnosis;
+        return this;
+    }
+
+    build(): SpellCaster {
+        let sc = new SpellCaster(this.gnosis, [...this.rulingArcana], this.arcanaDots);
+        return sc;
+    }
+};
+
 export class SpellCaster {
     readonly gnosis: number;
-    readonly arcanaDots: Map<Arcanum, number>;
-    readonly rulingArcana: Array<Arcanum>;
+    readonly arcanaDots: Map<Arcanum, number> = new Map<Arcanum, number>();
+    readonly rulingArcana: Array<Arcanum> = [];
 
-    constructor(gnosis: number, arcanaDots?: Map<Arcanum, number>) {
+    constructor(gnosis: number, rulingArcana: Arcanum[], arcanaDots: Map<Arcanum, number>) {
         if (gnosis < 0) {
             throw new Error('Gnosis must be at least 0');
         }
 
+        this.rulingArcana = rulingArcana;
         this.gnosis = gnosis;
-
-        if (arcanaDots) {
-            this.arcanaDots = arcanaDots;
-        }
+        this.arcanaDots = new Map<Arcanum, number>(arcanaDots);
     }
 
     listPractices(arcanum: Arcanum): ReadonlyArray<Practices> {
@@ -188,6 +220,16 @@ export class SpellCaster {
     get paradoxByGnosis(): number {
         return Math.ceil(this.gnosis / 2.0);
     }
+
+    get isArchmage(): boolean {
+        for (const arcanumAndDots of this.arcanaDots) {
+            if (arcanumAndDots[1] >= 6) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }
 
 export class SimpleSpellCasting {
@@ -214,14 +256,14 @@ export class SimpleSpellCasting {
     }
 
     get yantraRules(): ReadonlyArray<YantraRules> {
-        let uniqueRules = new Set<YantraRules>(this.yantras.map(yantra => yantra.rule));
-        return [...uniqueRules];
+        return this.yantras.map(yantra => yantra.rule);
+
     }
 
     get yantraBonus(): number {
         return this.yantras.reduce((totalBonus, yantra) => {
             return totalBonus + yantra.dieBonus;
-        }, 1);
+        }, 0);
     }
 
     get spellArcana(): ReadonlyArray<Arcanum> {
@@ -354,6 +396,8 @@ export class SimpleSpellCasting {
             spellModifier += this.hasSituationalRule(SituationalRules.SpendingWillpower) ? 3 : 0;
         }
 
+        pool += spellModifier;
+
         return pool;
     }
 
@@ -398,9 +442,8 @@ export class SimpleSpellCasting {
             }
         }
 
-        //A dice pool that is a chance die and has a penalty of -5 is
-        //too complex and cannot be cast.
-        if (this.dicePool <= 0 && this.dicePenalties <= -5) {
+        //A dice pool of -6 or less is impossible.
+        if (this.dicePool <= -6) {
             errors.push('A spell with a chance die dice pool and a penalty >= -5 is too complex to cast.');
         }
 
