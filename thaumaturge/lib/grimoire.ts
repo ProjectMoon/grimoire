@@ -354,8 +354,10 @@ export class SimpleSpellCasting {
         }
 
         //Otherwise we need to apply penalties to the pool.
+        //-2 per dedicated tool (usually only one, but sometimes more)
+        //and -1 per Mana spent.
         if (this.hasYantraRule(YantraRules.DedicatedTool)) {
-            paradox -= 2;
+            paradox -= 2 * this.yantraRules.map(rule => rule == YantraRules.DedicatedTool).length;
         }
 
         if (this.manaCosts) {

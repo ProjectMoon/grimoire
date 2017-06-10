@@ -249,7 +249,7 @@ describe('SimpleSpellcasting class', () => {
         const dedicatedTool: Yantra = {
             name: 'Bongo Drums',
             dieBonus: 1,
-            rule: YantraRules.Normal
+            rule: YantraRules.DedicatedTool
         };
 
         const def = defaultLifeSpell(sacrament, sacrament2, dedicatedTool);
@@ -277,6 +277,36 @@ describe('SimpleSpellcasting class', () => {
         assert.include(casting.spellArcana as Arcanum[], Arcanum.Life);
         assert.include(casting.spellArcana as Arcanum[], Arcanum.Fate);
         assert.equal(casting.spellHighestArcanum, Arcanum.Life);
+    });
+
+    it('should allow multiple dedicated tools to reduce paradox (e.g. soul stone)', () => {
+        const soulStone: Yantra = {
+            name: 'Soul stone',
+            dieBonus: 0,
+            rule: YantraRules.DedicatedTool
+        };
+
+        const dedicatedTool: Yantra = {
+            name: 'Bongo Drums',
+            dieBonus: 1,
+            rule: YantraRules.DedicatedTool
+        };
+
+        //This definition will have 4 paradox dice (inured +2, previous rolls +2)
+        const def = defaultLifeSpell(soulStone, dedicatedTool);
+        def.situation = {
+            previousParadoxRolls: 2,
+            woundPenalty: 0,
+            situationalRules: [SituationalRules.Inured]
+        };
+
+        const caster = new SpellCasterBuilder()
+            .withGnosis(1)
+            .withArcanum(Arcanum.Life, 1)
+            .build();
+
+        const casting = new SimpleSpellCasting(caster, def);
+        assert.equal(casting.paradoxDice, 0);
     });
 });
 
