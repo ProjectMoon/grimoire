@@ -17,6 +17,7 @@
     "@types/mocha": "^2.2.40",
     "@types/node": "^7.0.12",
     "awesome-typescript-loader": "^3.1.2",
+    "typescript": "^2.3.4",
     "mocha": "^3.2.0",
     "source-map-loader": "^0.2.0",
     "ts-node": "^3.0.2",

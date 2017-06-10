@@ -111,7 +111,7 @@ describe('SpellCaster class', () => {
     });
 });
 
-function defaultSpell(...yantras: Yantra[]): SpellcastingDefinition {
+function defaultLifeSpell(...yantras: Yantra[]): SpellcastingDefinition {
     return defaultSpellWithArcanum(Arcanum.Life, 1, ...yantras);
 }
 
@@ -181,7 +181,7 @@ describe('SimpleSpellcasting class', () => {
             rule: YantraRules.Destroyed
         };
 
-        const def = defaultSpell(sacrament, sacrament2);
+        const def = defaultLifeSpell(sacrament, sacrament2);
         const caster = new SpellCasterBuilder()
             .withGnosis(1)
             .withArcanum(Arcanum.Life, 1)
@@ -194,7 +194,7 @@ describe('SimpleSpellcasting class', () => {
     });
 
     it('should give a yantra bonus of 0 with no yantras', () => {
-        const def = defaultSpell();
+        const def = defaultLifeSpell();
         const caster = new SpellCasterBuilder()
             .withGnosis(1)
             .withArcanum(Arcanum.Life, 1)
@@ -223,7 +223,7 @@ describe('SimpleSpellcasting class', () => {
             rule: YantraRules.Normal
         };
 
-        const def = defaultSpell(sacrament, patronTool, dedicatedTool);
+        const def = defaultLifeSpell(sacrament, patronTool, dedicatedTool);
         const caster = new SpellCasterBuilder()
             .withGnosis(1)
             .withArcanum(Arcanum.Life, 1)
@@ -252,7 +252,7 @@ describe('SimpleSpellcasting class', () => {
             rule: YantraRules.Normal
         };
 
-        const def = defaultSpell(sacrament, sacrament2, dedicatedTool);
+        const def = defaultLifeSpell(sacrament, sacrament2, dedicatedTool);
         const caster = new SpellCasterBuilder()
             .withGnosis(1)
             .withArcanum(Arcanum.Life, 1)
@@ -281,30 +281,31 @@ describe('SimpleSpellcasting class', () => {
 });
 
 describe('SimpleSpellcasting mana tests', () => {
-    it('a rote should cost 0 mana', () => {
+    it('a rote from non-ruling Arcanum should have 0 mana base cost', () => {
         const mudras: Yantra = {
             name: 'Rote mudras',
             dieBonus: 4,
             rule: YantraRules.Rote
         };
 
-        const def = defaultSpell(mudras);
+        const def = defaultLifeSpell(mudras);
         const caster = new SpellCasterBuilder()
             .withGnosis(1)
             .withArcanum(Arcanum.Life, 1)
+            .withRulingArcana(Arcanum.Death)
             .build();
         const casting = new SimpleSpellCasting(caster, def);
         assert.equal(casting.manaCost, 0);
     });
 
-    it('a praxis should cost 0 mana', () => {
+    it('a praxis from a non-ruling arcanum should have 0 mana base cost', () => {
         const mudras: Yantra = {
             name: 'Tool',
             dieBonus: 1,
             rule: YantraRules.Normal
         };
 
-        let def = defaultSpell(mudras);
+        let def = defaultLifeSpell(mudras);
         def.situation = {
             situationalRules: [SituationalRules.IsPraxis],
             previousParadoxRolls: 0,
@@ -314,24 +315,48 @@ describe('SimpleSpellcasting mana tests', () => {
         const caster = new SpellCasterBuilder()
             .withGnosis(1)
             .withArcanum(Arcanum.Life, 1)
+            .withRulingArcana(Arcanum.Death)
             .build();
         const casting = new SimpleSpellCasting(caster, def);
         assert.equal(casting.manaCost, 0);
     });
 
-    it('a non-ruling arcanum spell should cost 1 mana', () => {
+    it('a rote with extra mana costs should have a cost', () => {
+        const mudras: Yantra = {
+            name: 'Rote mudras',
+            dieBonus: 4,
+            rule: YantraRules.Rote
+        };
+
+        const def = defaultLifeSpell(mudras);
+        def.manaCosts = {
+            paradoxReduction: 1,
+            supernalPerfection: true,
+            extraMana: 1
+        };
+
+        const caster = new SpellCasterBuilder()
+            .withGnosis(1)
+            .withArcanum(Arcanum.Life, 1)
+            .build();
+
+        const casting = new SimpleSpellCasting(caster, def);
+        assert.equal(casting.manaCost, 3);
+    });
+
+    it('a non-ruling arcanum improvised spell should have a base cost of 1 mana', () => {
         const caster = new SpellCasterBuilder()
             .withGnosis(1)
             .withArcanum(Arcanum.Life, 1)
             .withRulingArcana(Arcanum.Death, Arcanum.Matter)
             .build();
 
-        let def = defaultSpell();
+        let def = defaultLifeSpell();
         const casting = new SimpleSpellCasting(caster, def);
         assert.equal(casting.manaCost, 1);
     });
 
-    it('a spell with mulitple non-ruling arcana should cost 1 mana', () => {
+    it('a spell with multiple non-ruling arcana should cost 1 mana', () => {
         const caster = new SpellCasterBuilder()
             .withGnosis(1)
             .withArcanum(Arcanum.Life, 2)
@@ -460,5 +485,19 @@ describe('SimpleSpellCasting dice penalties', () => {
         factors.potency++;
         factors.scale++;
         checkDicePenalties(factors, -12);
+    });
+});
+
+describe('Spellcasting integration test', () => {
+    it('should do something', () => {
+        const caster = new SpellCasterBuilder()
+            .withGnosis(1)
+            .withArcanum(Arcanum.Life, 1)
+            .withRulingArcanum(Arcanum.Life)
+            .build();
+
+        const def = defaultSpellWithArcanum(Arcanum.Life, 1);
+
+        const casting = new SimpleSpellCasting(caster, def);
     });
 });

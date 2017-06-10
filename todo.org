@@ -32,7 +32,7 @@ Thaumaturge is to be a separate library that Grimoire depends on (despite being 
 
 To finsh thaumaturge we need to do:
  - [X] Create tsconfig.json
- - [ ] Leverage dts-bundle to generate the types file.
+ - [ ] Leverage dts-bundle to generate a single types file (from all the .d.js files in the dist directory).
  - [ ] Make some kind of build task to automate the generation of js files and the type declaration.
  - [ ] Write a simple command line client for it.
  - [ ] Tests! (should be pretty straightforward...)

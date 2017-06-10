@@ -46,6 +46,7 @@ export enum YantraRules {
     Destroyed, //Yantra must be destroyed to take effect (sacrament)
     OnlyReflexiveActions, //Can only take reflexive actions during spell's Duration (concentration)
     RitualInterval, //Takes a ritual interval to utilize the Yantra (runes)
+    ExtendsCastingTime, //Must always spend at least a turn casting (chanting)
     Rote, //Rotes do not cost Mana (mudras) -- conflicts with Praxis Situational factor
     DedicatedTool, //Dedicated Tools reduce paradox dice pool by -2
     Normal, //Nothing special aside from normal symbolism rules (everything else)
@@ -61,9 +62,9 @@ export interface Yantra {
 //directly to steps on the charts/rules. So a spell whose potency
 //factor is set to 3 means the spell has a potency of 3. This
 //interface represents dice penalty-based changes to the spellcasting
-//pool, plus the primary factor. The bonus to primary factor cannot be
-//calculated here, as it happens as part of spellcasting (since it's
-//tied to the spellcaster's arcanum rating).
+//pool, plus the name of the primary factor. The bonus to primary
+//factor cannot be calculated here, as it happens as part of
+//spellcasting (since it's tied to the spellcaster's arcanum rating).
 export interface SpellFactors {
     primaryFactor: "duration" | "potency";
     scale: number;
@@ -83,9 +84,10 @@ export interface ExtraManaCosts {
 export enum SituationalRules {
     IsPraxis, //Spell being cast is a praxis -- conflicts with Rote Yantra Rule.
     SleeperWitnesses, //Are there Sleepers witnessing the spell?
-    Inured, //Is hte mage inured to the spell?
+    Inured, //Is the mage inured to the spell?
     SpendingWillpower, //Is the mage spending willpower on the spell?
-    InGrapple //Being in a grapple is a -3 to spellcasting.
+    InGrapple, //Being in a grapple is a -3 to spellcasting.
+    InstantCasting //The spell can be cast as an instant action.
 }
 
 //Various situational factors that can affect a spellcasting. Most are
@@ -194,12 +196,7 @@ export class SpellCaster {
 
     getArcanumDots(arcanum: Arcanum): number {
         let dots = this.arcanaDots.get(arcanum);
-        if (dots) {
-            return dots;
-        }
-        else {
-            return 0;
-        }
+        return dots ? dots : 0;
     }
 
     get maxYantras(): number {
@@ -283,24 +280,22 @@ export class SimpleSpellCasting {
         return this.spellHighestArcanumComponent.dots;
     }
 
+    get isImperialSpell(): boolean {
+        return this.spellHighestArcanumDots > 5;
+    }
+
     get manaCost(): number {
-        //Rotes cost 0
-        if (this.hasYantraRule(YantraRules.Rote)) {
-            return 0;
-        }
-
-        //Praxes cost 0
-        if (this.hasSituationalRule(SituationalRules.IsPraxis)) {
-            return 0;
-        }
-
-        let manaCost = 0;
+        //Rotes and praxes have a base cost of 0.
         //A spell that uses any arcana outside the caster's Ruling
         //arcana costs a point of Mana.
-        for (let arcanum of this.spellArcana) {
-            if (this.caster.rulingArcana.indexOf(arcanum) == -1) {
-                manaCost++;
-                break;
+        let manaCost = 0;
+        if (!this.hasYantraRule(YantraRules.Rote) &&
+            !this.hasSituationalRule(SituationalRules.IsPraxis)) {
+            for (let arcanum of this.spellArcana) {
+                if (this.caster.rulingArcana.indexOf(arcanum) == -1) {
+                    manaCost++;
+                    break;
+                }
             }
         }
 
@@ -402,6 +397,12 @@ export class SimpleSpellCasting {
     }
 
     get castingTime(): [CastingTimeUnit, number] {
+        //TODO implement this. Normally it's equal to a number of
+        //ritual intervals specified, but with the instant casting
+        //situational rule, it's 1 turn, plus 1 turn per yantra beyond
+        //the first, unless the RitualInterval yantra rule is in
+        //effect, in which case casting time is still one ritual
+        //interval.
         return [CastingTimeUnit.Turn, 0];
     }
 
@@ -425,13 +426,13 @@ export class SimpleSpellCasting {
         let casterPractices = this.caster.listPractices(this.spellHighestArcanum);
 
         if (casterPractices.indexOf(this.spell.practice) === -1) {
-            errors.push('The ${this.spell.practice} practice is not available at ${this.spell.dots} dots');
+            errors.push(`The ${this.spell.practice} practice is not available at ${this.spellHighestArcanumDots} dots`);
         }
 
         //The caster needs all the dots in all the arcana of the spell.
         for (let arcanumComponent of this.spell.arcana) {
             if (this.caster.getArcanumDots(arcanumComponent.arcanum) < arcanumComponent.dots) {
-                errors.push('Caster does not have enough dots in ${arcanumComponent.arcanum}. (${arcanumComponent.dots} required)');
+                errors.push(`Caster does not have enough dots in ${arcanumComponent.arcanum}. (${arcanumComponent.dots} required)`);
             }
         }
 
@@ -443,13 +444,14 @@ export class SimpleSpellCasting {
         }
 
         //A dice pool of -6 or less is impossible.
+        //TODO this should be after yantras only (so remove all other bonuses like willpower/ritual intervals)
         if (this.dicePool <= -6) {
-            errors.push('A spell with a chance die dice pool and a penalty >= -5 is too complex to cast.');
+            errors.push('A spell whose dice pool is -6 or less is too complex to cast.');
         }
 
         //A spell's number of Yantras cannot exceed the limit defined by Gnosis.
         if (this.yantras.length > this.caster.maxYantras) {
-            errors.push('The spell is using ${this.yantras.length}, but the caster can only use ${this.caster.maxYantras}');
+            errors.push(`The spell is using ${this.yantras.length}, but the caster can only use ${this.caster.maxYantras}`);
         }
 
         if (errors.length == 0) {
@@ -479,7 +481,7 @@ export class SimpleSpellCasting {
             info.push('Paradox Dice: ' + ((paradox > 0) ? paradox : 'Chance die'));
         }
 
-        info.push('Dice Pool: ${this.dicePool}' + ((paradox) ? ' (penalized by Paradox successes)' : ''));
+        info.push(`Dice Pool: ${this.dicePool}` + ((paradox) ? ' (penalized by Paradox successes)' : ''));
         info.push('Mana Cost: ' + this.manaCost);
 
         //Yantras
