@@ -51,19 +51,23 @@ export class Hello extends React.Component<HelloProps, HelloState> {
                     </Menu>
                 </Drawer>
                 <Card>
-                    <CardHeader title="Title Here" subtitle="A subtitle" />
-                    <CardText>What you say mate?</CardText>
                     {this.renderPane()}
                 </Card>
             </div >
         );
     }
 
-    renderPane<T, S>(): JSX.Element {
+    renderPane(): JSX.Element {
         const pane = this.state.currentPane;
         const items = ['ok', 'not ok', 'u wot'];
         if (pane == 'Home') {
-            return <ExampleList name="Stuff List" items={items} />
+            return (
+                <div>
+                    <CardHeader title="Title Here" subtitle="A subtitle" />
+                    <CardText>What you say mate?</CardText>
+                    <ExampleList name="Stuff List" items={items} />
+                </div>
+            );
         }
 
         return <ExampleList name="Oh no" items={items} />
