@@ -2,8 +2,8 @@
   "name": "thaumaturge",
   "version": "1.0.0",
   "description": "MtAw 2e spellcasting logic library used by Grimoire.",
-  "main": "./dist/lib/index.js",
-  "types": "./dist/thaumaturge.d.ts",
+  "main": "dist/lib/index",
+  "types": "dist/lib/thaumaturge.d.ts",
   "files": [
     "dist/"
   ],
@@ -14,14 +14,14 @@
   "license": "ISC",
   "devDependencies": {
     "@types/chai": "^3.4.35",
+    "@types/core-js": "^0.9.43",
     "@types/mocha": "^2.2.40",
     "@types/node": "^7.0.12",
     "awesome-typescript-loader": "^3.1.2",
-    "typescript": "^2.3.4",
+    "chai": "^3.5.0",
     "mocha": "^3.2.0",
     "source-map-loader": "^0.2.0",
     "ts-node": "^3.0.2",
-    "typescript": "^2.2.1",
-    "chai": "^3.5.0"
+    "typescript": "^2.2.1"
   }
 }
