@@ -7,6 +7,9 @@ import Menu from 'material-ui/Menu';
 import { TouchTapEvent } from 'material-ui';
 import { Card, CardActions, CardHeader, CardMedia, CardTitle, CardText } from 'material-ui/Card';
 
+import { Arcanum } from 'thaumaturge';
+import { Character } from './Character';
+
 type PaneName = 'Home' | 'Spellcasting' | 'Spell List' | 'Character';
 export interface HelloProps { title: string; }
 export interface HelloState {
@@ -60,6 +63,7 @@ export class Hello extends React.Component<HelloProps, HelloState> {
     renderPane(): JSX.Element {
         const pane = this.state.currentPane;
         const items = ['ok', 'not ok', 'u wot'];
+
         if (pane == 'Home') {
             return (
                 <div>
@@ -67,6 +71,17 @@ export class Hello extends React.Component<HelloProps, HelloState> {
                     <CardText>What you say mate?</CardText>
                     <ExampleList name="Stuff List" items={items} />
                 </div>
+            );
+        }
+        else if (pane == 'Character') {
+            const arcana: Map<Arcanum, number> = new Map<Arcanum, number>();
+
+            arcana.set(Arcanum.Life, 3);
+            arcana.set(Arcanum.Time, 2);
+            arcana.set(Arcanum.Spirit, 1);
+
+            return (
+                <Character arcanaDots={arcana} name="Joe" gnosis={6} rulingArcana={[Arcanum.Life, Arcanum.Death]} />
             );
         }
 
