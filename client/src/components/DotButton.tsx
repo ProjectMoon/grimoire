@@ -1,6 +1,5 @@
 import * as React from "react";
 import Checkbox from 'material-ui/Checkbox';
-import { RadioButton, RadioButtonGroup } from 'material-ui/RadioButton';
 import RadioButtonChecked from 'material-ui/svg-icons/toggle/radio-button-checked';
 import RadioButtonUnchecked from 'material-ui/svg-icons/toggle/radio-button-unchecked';
 
@@ -23,14 +22,15 @@ const checkboxStyle: React.CSSProperties = {
 };
 
 export interface DotButtonProps {
-    text: string;
     dots: number;
+    onChange: (oldDots: number, newDots: number) => void;
 }
 
 export interface DotButtonState {
     selectedDots: number;
 }
 
+//TODO add support for disabled and higher than 5 dots.
 export class DotButton extends React.Component<DotButtonProps, DotButtonState> {
     constructor(props: DotButtonProps) {
         super(props);
@@ -40,17 +40,17 @@ export class DotButton extends React.Component<DotButtonProps, DotButtonState> {
     updateCheck(event: CheckboxEvent, isInputChecked: boolean) {
         let input = event.target;
         this.setState(oldState => {
-            if (oldState.selectedDots == 1 && input.value == '1') {
-                return { selectedDots: 0 };
+            let newDots = parseInt(input.value);
+            if (oldState.selectedDots == 1 && newDots == 1) {
+                newDots = 0;
             }
-            else {
-                return { selectedDots: parseInt(input.value) };
-            }
+
+            this.props.onChange(oldState.selectedDots, newDots);
+            return { selectedDots: newDots };
         });
     }
 
     render() {
-
         const dotButtons = [];
 
         for (let c = 1; c <= 5; c++) {
@@ -67,19 +67,6 @@ export class DotButton extends React.Component<DotButtonProps, DotButtonState> {
             );
         }
 
-        var dots = (
-            <div>
-                <div style={containerStyle}>
-                    <div style={labelStyle}>
-                        <span>{this.props.text}</span>
-                    </div>
-                    <div>
-                        {dotButtons}
-                    </div>
-                </div>
-            </div>
-        );
-
-        return dots;
+        return <div style={containerStyle}>{dotButtons}</div>;
     }
 }

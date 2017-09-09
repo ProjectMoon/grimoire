@@ -8,10 +8,13 @@ import { List, ListItem } from 'material-ui/List';
 import { TouchTapEvent } from 'material-ui';
 import { Card, CardActions, CardHeader, CardMedia, CardTitle, CardText } from 'material-ui/Card';
 import Paper from 'material-ui/Paper';
+import Divider from 'material-ui/Divider';
 
+import { ArcanumListItem } from './ArcanumListItem';
 import { DotButton } from './DotButton';
+import { CharacterArcana } from './CharacterArcana';
 
-import { Arcanum } from 'thaumaturge';
+import { Arcanum, DotsToTitles } from 'thaumaturge';
 
 export interface CharacterProps {
     name: string;
@@ -24,6 +27,7 @@ export interface CharacterState {
     //TODO will be used for health etc.
 }
 
+//TODO a lot of the saving will live here, by exposing different on change handlers (save arcanum, save gnosis).
 export class Character extends React.Component<CharacterProps, CharacterState> {
     constructor(props: CharacterProps) {
         super(props);
@@ -33,21 +37,14 @@ export class Character extends React.Component<CharacterProps, CharacterState> {
     render() {
         const arcana: Array<JSX.Element> = [];
 
-        let c = 0;
-        this.props.arcanaDots.forEach((dots, arcanum) => {
-            arcana.push(<DotButton key={c} text={Arcanum[arcanum]} dots={dots} />);
-            c++;
-        });
-
         return (
-            <Paper zDepth={2}>
-                <CardHeader title="Character" subtitle={this.props.name} />
-                <div>
-                    <List>
-                        {arcana}
-                    </List>
-                </div>
-            </Paper>
+            <Card>
+                <CardHeader title={this.props.name} subtitle="Order Path" />
+                <CardText>
+                    This is the character page, where basic attributes related to spellcasting are defined for the character.
+                    <CharacterArcana arcana={this.props.arcanaDots} />
+                </CardText>
+            </Card>
         );
     }
 }

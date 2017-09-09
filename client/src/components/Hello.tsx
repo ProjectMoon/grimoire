@@ -61,6 +61,7 @@ export class Hello extends React.Component<HelloProps, HelloState> {
     }
 
     renderPane(): JSX.Element {
+        //TODO replace with individual functions for rendering characters.
         const pane = this.state.currentPane;
         const items = ['ok', 'not ok', 'u wot'];
 
