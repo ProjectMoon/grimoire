@@ -17,22 +17,10 @@ export interface ArcanumListItemProps {
 export class ArcanumListItem extends React.Component<ArcanumListItemProps, undefined> {
     constructor(props: ArcanumListItemProps) {
         super(props);
-
-        /* const title = DotsToTitles.get(this.props.dots) || "Untrained";
-         * this.state = { dots: this.props.dots, title: title };*/
         this.updateValues = this.updateValues.bind(this);
     }
 
     updateValues(oldDots: number, newDots: number) {
-        /* const newTitle = DotsToTitles.get(newDots);
-
-         * if (newTitle) {
-         *     this.setState({ dots: newDots, title: newTitle });
-         * }
-         * else {
-         *     this.setState({ dots: newDots, title: "Untrained" });
-         * }*/
-
         if (this.props.onChange)
             this.props.onChange(this.props.arcanum, oldDots, newDots);
     }

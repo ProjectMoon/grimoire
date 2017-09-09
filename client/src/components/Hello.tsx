@@ -10,7 +10,7 @@ import { Card, CardActions, CardHeader, CardMedia, CardTitle, CardText } from 'm
 import { Arcanum } from 'thaumaturge';
 import { Character } from './Character';
 
-type PaneName = 'Home' | 'Spellcasting' | 'Spell List' | 'Character';
+type PaneName = 'Character List' | 'Spellcasting' | 'Spell List' | 'Character Sheet';
 export interface HelloProps { title: string; }
 export interface HelloState {
     open: boolean;
@@ -24,7 +24,7 @@ export class Hello extends React.Component<HelloProps, HelloState> {
 
     constructor(props: HelloProps) {
         super(props);
-        this.state = { open: false, currentPane: 'Home' };
+        this.state = { open: false, currentPane: 'Character List' };
     }
 
     toggleMenu = () => {
@@ -47,8 +47,8 @@ export class Hello extends React.Component<HelloProps, HelloState> {
                 <AppBar title={this.props.title} onLeftIconButtonTouchTap={this.toggleMenu} />
                 <Drawer docked={false} open={this.state.open} onRequestChange={(open) => this.setState({ open })}>
                     <Menu onChange={this.menuChange}>
-                        <MenuItem value="Home" onTouchTap={this.handleClose}>Home</MenuItem>
-                        <MenuItem value="Character" onTouchTap={this.handleClose}>Character</MenuItem>
+                        <MenuItem value="Character List" onTouchTap={this.handleClose}>Character List</MenuItem>
+                        <MenuItem value="Character Sheet" onTouchTap={this.handleClose}>Character Sheet</MenuItem>
                         <MenuItem value="Spellcasting" onTouchTap={this.handleClose}>Spellcasting</MenuItem>
                         <MenuItem value="Spell List" onTouchTap={this.handleClose}>Spell List</MenuItem>
                     </Menu>
@@ -61,24 +61,32 @@ export class Hello extends React.Component<HelloProps, HelloState> {
     }
 
     renderPane(): JSX.Element {
-        //TODO replace with individual functions for rendering characters.
         const pane = this.state.currentPane;
-        const items = ['ok', 'not ok', 'u wot'];
 
-        if (pane == 'Home') {
-            return (
-                <div>
-                    <CardHeader title="Title Here" subtitle="A subtitle" />
-                    <CardText>What you say mate?</CardText>
-                    <ExampleList name="Stuff List" items={items} />
-                </div>
-            );
+        if (pane == 'Character List') {
+            return this.renderCharacterList();
         }
-        else if (pane == 'Character') {
+        else if (pane == 'Character Sheet') {
             return this.renderCharacterPane();
         }
+        else if (pane == 'Spell List') {
+            return this.renderSpellList();
+        }
+        else if (pane == 'Spellcasting') {
+            return this.renderSpellcasting();
+        }
+        else {
+            throw new Error('Unrecognized frame');
+        }
+    }
 
-        return <ExampleList name="Oh no" items={items} />
+    renderCharacterList(): JSX.Element {
+        return (
+            <div>
+                <CardHeader title="Title Here" subtitle="A subtitle" />
+                <CardText>What you say mate?</CardText>
+            </div>
+        );
     }
 
     renderCharacterPane(): JSX.Element {
@@ -94,33 +102,19 @@ export class Hello extends React.Component<HelloProps, HelloState> {
         );
     }
 
+    renderSpellList(): JSX.Element {
+        return <div />;
+    }
+
+    renderSpellcasting(): JSX.Element {
+        return <div />;
+    }
+
     componentDidMount() {
 
     }
 
     componentWillUnmount() {
 
-    }
-}
-
-export interface ExampleListProps {
-    name: string;
-    items: Array<string>;
-}
-
-export class ExampleList extends React.Component<ExampleListProps, undefined> {
-    render() {
-        let listItems: Array<JSX.Element> = [];
-
-        for (let item of this.props.items) {
-            listItems.push(<li>{item}</li>);
-        }
-
-        return (
-            <div>
-                <h2>{this.props.name}'s TODO list:</h2>
-                <ul>{listItems}</ul>
-            </div>
-        );
     }
 }
