@@ -40,6 +40,22 @@ export const PracticesMap = Object.freeze(new Map<number, ReadonlyArray<Practice
     [10, TenDotPractices]
 ]));
 
+export type Titles = "Untrained" | "Initiate" | "Apprentice" | "Disciple" | "Adept" | "Master" | "Archmaster";
+
+export const DotsToTitles = Object.freeze(new Map<number, Titles>([
+    [0, "Untrained"],
+    [1, "Initiate"],
+    [2, "Apprentice"],
+    [3, "Disciple"],
+    [4, "Adept"],
+    [5, "Master"],
+    [6, "Archmaster"],
+    [7, "Archmaster"],
+    [8, "Archmaster"],
+    [9, "Archmaster"],
+    [10, "Archmaster"]
+]));
+
 export enum CastingTimeUnit { Turn, RitualInterval }
 
 export enum YantraRules {
