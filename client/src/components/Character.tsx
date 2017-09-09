@@ -81,8 +81,6 @@ export class Character extends React.Component<CharacterProps, CharacterState> {
         this.setState({ currentCharacter: character });
     }
 
-    //Shouldn't mutate state in these directly, but because we're saving the character, it's a bit of a shortcut
-    //to a proper state mutation.
     onArcanumChange(arcanum: Arcanum, oldDots: number, newDots: number) {
         const arcana = new Map(this.state.currentCharacter.arcanaDots);
         arcana.set(arcanum, newDots);
