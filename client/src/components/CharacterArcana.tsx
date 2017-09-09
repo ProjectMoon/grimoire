@@ -1,5 +1,5 @@
 import * as React from "react";
-import { ArcanumListItem } from './ArcanumListItem';
+import { ArcanumListItem, ArcanumChangeHandler } from './ArcanumListItem';
 import Divider from 'material-ui/Divider';
 import { Card, CardActions, CardHeader, CardMedia, CardTitle, CardText } from 'material-ui/Card';
 
@@ -9,25 +9,19 @@ export type Arcana = Map<Arcanum, number>;
 
 interface CharacterArcanaProps {
     arcana: Arcana;
-    onChange?: (oldArcana: Arcana, newArcana: Arcana) => void;
+    onArcanumChanged?: ArcanumChangeHandler;
 }
 
-interface CharacterArcanaState {
-    arcana: Map<Arcanum, number>;
-}
-
-export class CharacterArcana extends React.Component<CharacterArcanaProps, CharacterArcanaState> {
+export class CharacterArcana extends React.Component<CharacterArcanaProps, undefined> {
     constructor(props: CharacterArcanaProps) {
         super(props);
-        //TODO handle sparse arcana dots properly.
-        this.state = { arcana: this.props.arcana };
-        this.updateArcana.bind(this);
+        this.updateArcanum.bind(this);
     }
 
-    updateArcana(newArcana: Arcana) {
+    updateArcanum(arcanum: Arcanum, oldDots: number, newDots: number) {
         this.setState(oldState => {
-            if (this.props.onChange)
-                this.props.onChange(oldState.arcana, newArcana);
+            if (this.props.onArcanumChanged && oldDots != newDots)
+                this.props.onArcanumChanged(arcanum, oldDots, newDots);
         });
     }
 
@@ -37,10 +31,15 @@ export class CharacterArcana extends React.Component<CharacterArcanaProps, Chara
         let c = 0;
         this.props.arcana.forEach((dots, arcanum) => {
             arcana.push(
-                <ArcanumListItem key={c} arcanum={arcanum} dots={dots} />
+                <ArcanumListItem
+                    key={'arcanum' + c}
+                    onChange={this.props.onArcanumChanged}
+                    arcanum={arcanum}
+                    title={DotsToTitles.get(dots) || "Untrained"}
+                    dots={dots} />
             );
 
-            arcana.push(<Divider />);
+            arcana.push(<Divider key={'divider' + c} />);
             c++;
         });
 

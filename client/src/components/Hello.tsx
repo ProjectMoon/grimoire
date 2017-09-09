@@ -75,18 +75,23 @@ export class Hello extends React.Component<HelloProps, HelloState> {
             );
         }
         else if (pane == 'Character') {
-            const arcana: Map<Arcanum, number> = new Map<Arcanum, number>();
-
-            arcana.set(Arcanum.Life, 3);
-            arcana.set(Arcanum.Time, 2);
-            arcana.set(Arcanum.Spirit, 1);
-
-            return (
-                <Character arcanaDots={arcana} name="Joe" gnosis={6} rulingArcana={[Arcanum.Life, Arcanum.Death]} />
-            );
+            return this.renderCharacterPane();
         }
 
         return <ExampleList name="Oh no" items={items} />
+    }
+
+    renderCharacterPane(): JSX.Element {
+        const arcana: Map<Arcanum, number> = new Map<Arcanum, number>();
+
+        arcana.set(Arcanum.Life, 3);
+        arcana.set(Arcanum.Time, 2);
+        arcana.set(Arcanum.Spirit, 1);
+
+        return (
+            //TODO introduce list on the side for loading and making new characters.
+            <Character characterID={1} />
+        );
     }
 
     componentDidMount() {
