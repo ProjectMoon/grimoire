@@ -1,4 +1,5 @@
 import * as React from "react";
+import { EventSubscription } from 'fbemitter';
 import { Card, CardActions, CardHeader, CardMedia, CardTitle, CardText } from 'material-ui/Card';
 
 import { ArcanumChangeHandler } from './ArcanumListItem';
@@ -46,8 +47,10 @@ function createNewCharacter(id: number) {
 
 //TODO this is essentially a controller, since it's the top level for all character stuff.
 export class Character extends React.Component<CharacterProps, CharacterState> {
+    private token: EventSubscription;
     constructor(props: CharacterProps) {
         super(props);
+        this.characterUpdated = this.characterUpdated.bind(this);
         this.onArcanumChange = this.onArcanumChange.bind(this);
         this.onGnosisChange = this.onGnosisChange.bind(this);
         this.onPathChange = this.onPathChange.bind(this);
@@ -66,38 +69,43 @@ export class Character extends React.Component<CharacterProps, CharacterState> {
         };
     }
 
-    onArcanumChange(arcanum: Arcanum, oldDots: number, newDots: number) {
-        console.log("Would save arcanum " + Arcanum[arcanum] + " from " + oldDots + " to " + newDots);
+    componentDidMount() {
+        this.token = CharacterDb.subscribe(this.characterUpdated);
+    }
 
-        this.setState(state => {
-            console.log('arcana dots is', state.currentCharacter.arcanaDots);
-            state.currentCharacter.arcanaDots.set(arcanum, newDots);
-            CharacterDb.saveCharacter(state.currentCharacter);
-            return state;
+    componentWillUnmount() {
+        CharacterDb.unsubscribe(this.token);
+    }
+
+    characterUpdated(character: CharacterDb.Character) {
+        this.setState({ currentCharacter: character });
+    }
+
+    //Shouldn't mutate state in these directly, but because we're saving the character, it's a bit of a shortcut
+    //to a proper state mutation.
+    onArcanumChange(arcanum: Arcanum, oldDots: number, newDots: number) {
+        const arcana = new Map(this.state.currentCharacter.arcanaDots);
+        arcana.set(arcanum, newDots);
+        CharacterDb.saveCharacter(this.state.currentCharacter, {
+            arcanaDots: arcana
         });
     }
 
     onGnosisChange(oldGnosis: number, newGnosis: number) {
-        this.setState(state => {
-            state.currentCharacter.gnosis = newGnosis;
-            CharacterDb.saveCharacter(state.currentCharacter);
-            return state;
+        CharacterDb.saveCharacter(this.state.currentCharacter, {
+            gnosis: newGnosis
         });
     }
 
     onPathChange(oldOrder: string, newPath: string) {
-        this.setState(state => {
-            state.currentCharacter.path = newPath;
-            CharacterDb.saveCharacter(state.currentCharacter);
-            return state;
+        CharacterDb.saveCharacter(this.state.currentCharacter, {
+            path: newPath
         });
     }
 
     onOrderChange(oldOrder: string, newOrder: string) {
-        this.setState(state => {
-            state.currentCharacter.order = newOrder;
-            CharacterDb.saveCharacter(state.currentCharacter);
-            return state;
+        CharacterDb.saveCharacter(this.state.currentCharacter, {
+            order: newOrder
         });
     }
 

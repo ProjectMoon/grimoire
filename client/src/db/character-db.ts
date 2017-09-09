@@ -1,4 +1,7 @@
+import { EventEmitter, EventSubscription } from 'fbemitter';
 import { Arcanum } from 'thaumaturge';
+
+const emitter = new EventEmitter();
 
 export interface Character {
     id: number;
@@ -8,6 +11,16 @@ export interface Character {
     arcanaDots: Map<Arcanum, number>;
     rulingArcana: Array<Arcanum>;
     gnosis: number;
+}
+
+export type CharacterUpdatedHandler = (character: Character) => void;
+
+export function subscribe(handler: CharacterUpdatedHandler): EventSubscription {
+    return emitter.addListener('update', handler);
+}
+
+export function unsubscribe(token: EventSubscription) {
+    token.remove();
 }
 
 export function retrieveCharacter(id: number) {
@@ -25,11 +38,14 @@ export function retrieveCharacter(id: number) {
     }
 }
 
-export function saveCharacter(character: Character) {
+export function saveCharacter(character: Character, updatedProperties?: any) {
+    const updated = Object.assign({}, character, updatedProperties);
+
     //cannot JSON stringify a Map, so currently save it separately.
-    let arcanaKey = "character:" + character.id + ":arcana";
-    let characterKey = "character:" + character.id + ":main";
+    let arcanaKey = "character:" + updated.id + ":arcana";
+    let characterKey = "character:" + updated.id + ":main";
     let arcana = [...character.arcanaDots];
-    localStorage[characterKey] = JSON.stringify(character);
+    localStorage[characterKey] = JSON.stringify(updated);
     localStorage[arcanaKey] = JSON.stringify(arcana);
+    emitter.emit('update', updated);
 }

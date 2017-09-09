@@ -9,14 +9,16 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "thaumaturge": "*",
+    "fbemitter": "^2.1.1",
     "material-ui": "^0.18.3",
     "react": "^15.4.2",
     "react-dom": "^15.4.2",
-    "react-tap-event-plugin": "^2.0.1"
+    "react-tap-event-plugin": "^2.0.1",
+    "thaumaturge": "*"
   },
   "devDependencies": {
     "@types/core-js": "^0.9.43",
+    "@types/fbemitter": "^2.0.32",
     "@types/material-ui": "^0.17.10",
     "@types/react": "^15.0.20",
     "@types/react-dom": "^0.14.23",
