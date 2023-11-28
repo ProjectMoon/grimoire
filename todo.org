@@ -52,3 +52,22 @@ To finsh thaumaturge we need to do:
      - [ ] Edit spell definition (can probably re-use create)
 ** Create Grimoire Client
 Time to react super hard.
+*** Character
+At the top is the Character Component. It has several event handlers for delegating to the storage to store data.
+
+Top level components are a series of Cards:
+ - CoreAttributes: Gnosis, Wisdom, Path, Legacy.
+ - CharacterAttributes: Physical, Mental, Social Attributes.
+ - {Physical/Mental/Social}Skills: one card per category of Skills.
+ - CharacterArcana: the character's ratings in the arcana.
+
+The character attributes and skill cards come later, since they're not immediately necessary for getting a working app. They are necessary for 100% working though.
+*** Character List
+Add a character list and the ability to create new characters.
+ - Move the character "creation" out of Character.tsx.
+ - Update character-db to include events that switch characters around. (when switched, emitting update should change the character page).
+ - By subscribing to character-db events, every component will know and be able to record the current character info in its state.
+*** Spellcasting
+Choose a spell you have created. Then you can set stuff like factors, reach, etc, and roll dice to cast.
+*** Spell List
+Create spells. To begin, you can pick Arcana and Practice (i.e. dots required), and whether or not it's Combined, or Conjunctional.
